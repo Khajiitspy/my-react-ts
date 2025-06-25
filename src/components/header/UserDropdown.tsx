@@ -1,21 +1,21 @@
 import {Dropdown} from "../ui/dropdown/Dropdown.tsx";
 import {DropdownItem} from "../ui/dropdown/DropdownItem.tsx";
 import {useState} from "react";
-import { selectCurrentUser } from "../../Store/Selectors.ts";
-import {useSelector, useDispatch} from "react-redux";
+//import { selectCurrentUser } from "../../Store/Selectors.ts";
+//import {useSelector, useDispatch} from "react-redux";
 import {APP_ENV} from "../../env";
-import {useNavigate} from "react-router-dom";
+//import {useNavigate} from "react-router-dom";
 import {logout} from "../../Store/authSlice.ts";
+import {useAppDispatch, useAppSelector} from "../../Store";
 
 export default function UserDropdown() {
     const [isOpen, setIsOpen] = useState(false);
-    const user = useSelector(selectCurrentUser);
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+    const { user } = useAppSelector(state=>state.auth);
+    const dispatch = useAppDispatch();
+    //const navigate = useNavigate();
     
     function logoutUser() {
         dispatch(logout());
-        navigate('/account');
     }
     
     function toggleDropdown() {

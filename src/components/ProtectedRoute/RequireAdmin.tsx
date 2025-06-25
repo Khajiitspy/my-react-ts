@@ -1,9 +1,8 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { selectCurrentUser } from "../../Store/Selectors";
+import {useAppSelector} from "../../Store";
 
 const RequireAdmin = () => {
-    const user = useSelector(selectCurrentUser);
+    const { user } = useAppSelector(state=>state.auth);
 
     if (!user || !user.roles.includes("Admin")) {
         return <Navigate to="/account" replace />;

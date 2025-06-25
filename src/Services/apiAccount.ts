@@ -1,12 +1,14 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { createBaseQuery } from '../Utilities/createBaseQuery.ts';
+import {serialize} from "object-to-formdata";
+import type {IRegister} from "./types.ts";
 
-interface LoginRequest {
+export interface ILoginRequest {
     email: string;
     password: string;
 }
 
-interface LoginResponse {
+interface ILoginResponse {
     token: string;
 }
 
@@ -14,14 +16,23 @@ export const apiAccount = createApi({
     reducerPath: 'api/account',
     baseQuery: createBaseQuery('account'),
     endpoints: (builder) => ({
-        login: builder.mutation<LoginResponse, LoginRequest>({
+        login: builder.mutation<ILoginResponse, ILoginRequest>({
             query: (credentials) => ({
                 url: 'login',
                 method: 'POST',
                 body: credentials,
-            }),
+            }), 
+        }),
+        register: builder.mutation<ILoginResponse, IRegister>({
+            query: (credentials) => {
+                const formData = serialize(credentials);
+                return{
+                    url: 'register',
+                    method: 'POST',
+                    body: formData};
+            },
         }),
     }),
 });
 
-export const { useLoginMutation } = apiAccount;
+export const { useLoginMutation, useRegisterMutation } = apiAccount;

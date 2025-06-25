@@ -15,7 +15,7 @@ interface AuthState {
 }
 
 
-const getUserFromToken = (token: string): User | null => {
+export const getUserFromToken = (token: string): User | null => {
     try {
         const decoded: any = jwtDecode(token);
         let roles: string[] = [];
