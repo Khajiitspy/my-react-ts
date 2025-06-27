@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useGetProductsQuery } from '../../Services/apiProduct';
-import {Link, useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import {APP_ENV} from "../../env";
 
 const ProductsPage: React.FC = () => {
@@ -40,9 +40,6 @@ const ProductsPage: React.FC = () => {
                     value={searchTerm}
                     onChange={handleSearch}
                 />
-                <Link to="/admin/products/create" className="bg-blue-600 text-white px-4 py-2 rounded">
-                    Create Product
-                </Link>
             </div>
 
             {isLoading && <p>Loading...</p>}
@@ -61,7 +58,7 @@ const ProductsPage: React.FC = () => {
                             className="w-full h-48 object-cover"
                         />
                         <div className="p-4 flex flex-col h-full bg-gray-500">
-                            <h3 className="text-lg font-semibold">{product.name}</h3>
+                            <h3 className="text-lg text-amber-500 font-semibold">{product.name}</h3>
                             <p className="text-green-400">₴{product.price}</p>
                         </div>
                     </div>

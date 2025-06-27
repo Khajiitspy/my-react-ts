@@ -1,151 +1,87 @@
-import { useParams, useNavigate } from "react-router-dom";
-import {
-    Upload,
-    Button,
-    Form,
-    Input,
-    message,
-    Popconfirm,
-    Spin, type FormProps,
-} from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import type { UploadFile } from "antd/es/upload";
-import type { RcFile } from "antd/es/upload/interface";
-import {
-    useGetCategoryByIdQuery,
-    useEditCategoryMutation,
-    useDeleteCategoryMutation,
-} from "../../../Services/apiCategory";
-import { APP_ENV } from "../../../env";
-import type {ICategoryEdit} from "../../../Services/types.ts";
+import { Button, Form, type FormProps, Input, message } from "antd";
+import type { ICategoryEdit, ServerError } from "../../../Services/types.ts";
+import ImageUploadFormItem from "../../../components/ui/form/ImageUploadFormItem.tsx";
+import { useEditCategoryMutation, useGetCategoryByIdQuery } from "../../../Services/apiCategory.ts";
+import { useNavigate, useParams } from "react-router";
+import LoadingOverlay from "../../../components/ui/loading/LoadingOverlay.tsx";
+import { useFormServerErrors } from "../../../Utilities/useFormServerErrors.ts";
+import {APP_ENV} from "../../../env";
 
-interface CategoryFormValues {
-    name: string;
-    image: UploadFile[];
-}
-
-const EditCategoryPage: React.FC = () => {
-    const { id } = useParams();
+const CategoriesEditPage: React.FC = () => {
     const navigate = useNavigate();
-    const categoryId = Number(id);
+    //@ts-ignore
+    const params = useParams<{ id: number }>();
+    const id = params.id || 0;
 
-    const { data: category, isLoading } = useGetCategoryByIdQuery(categoryId);
-    console.log("Category:", category);
-    const [editCategory] = useEditCategoryMutation();
-    const [deleteCategory] = useDeleteCategoryMutation();
-    
+    const { data: category, isLoading: isLoadingCategory, isError: isErrorCategory } = useGetCategoryByIdQuery(id);
 
-    const normFile = (e: any) => (Array.isArray(e) ? e : e?.fileList);
+    const [editCategory, { isLoading: isLoadingEdit }] = useEditCategoryMutation();
 
-    const onFinish: FormProps<CategoryFormValues>["onFinish"] = async (values) => {
-        const file = values.image?.[0]?.originFileObj as RcFile | undefined;
-
-        console.log("Selected file:", file);
+    const [form] = Form.useForm<ICategoryEdit>();
+    const setServerErrors = useFormServerErrors(form);
 
 
-        if (!(file instanceof File)) {
-            message.error("Будь ласка, виберіть зображення.");
-            return;
-        }
-
-        const payload: ICategoryEdit = {
-            id: categoryId,
-            name: values.name,
-            image: file,
-        };
-
+    const onFinish: FormProps<ICategoryEdit>['onFinish'] = async (values) => {
         try {
-            await editCategory(payload).unwrap();
-            message.success("Категорію оновлено успішно!");
-            navigate("/categories");
-        } catch (err) {
-            console.error("Update failed:", err);
-            message.error("Не вдалося оновити категорію.");
+            const result = await editCategory(values).unwrap();
+            message.success(`Категорія "${result.name}" успішно змінена`);
+            navigate('/admin/categories');
+        } catch (error) {
+            const serverError = error as ServerError;
+
+            if (serverError?.status === 400 && serverError?.data?.errors) {
+                setServerErrors(serverError.data.errors);
+            } else {
+                message.error("Сталася помилка при зміні категорії");
+            }
         }
     };
 
-    const handleDelete = async () => {
-        try {
-            await deleteCategory(categoryId).unwrap();
-            message.success("Категорію видалено.");
-            navigate("/categories");
-        } catch (err) {
-            console.error("Delete failed:", err);
-            message.error("Не вдалося видалити категорію.");
-        }
-    };
+    if (isLoadingCategory) return <p>Завантаження категорії...</p>;
+    if (isErrorCategory || !category) return <p>Категорія не знайдена.</p>;
 
-    if (isLoading) return <Spin />;
+
 
     return (
         <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
-            <h1 className="text-xl mb-4">Редагувати категорію</h1>
-
-            <Form<CategoryFormValues>
-                layout="horizontal"
-                labelCol={{ span: 6 }}
-                wrapperCol={{ span: 18 }}
-                onFinish={onFinish}
-                initialValues={{
-                    name: category?.name,
-                    image: [],
-                }}
-            >
-
-                <Form.Item
-                    name="name"
-                    label="Назва"
-                    rules={[{ required: true, message: "Вкажіть назву категорії" }]}
+            {(isLoadingEdit) && <LoadingOverlay />}
+            <div className="max-w-full overflow-x-auto">
+                <h1>Редагувати категорію</h1>
+                <Form
+                    form={form}
+                    labelCol={{ span: 6 }}
+                    wrapperCol={{ span: 18 }}
+                    onFinish={onFinish}
+                    layout="horizontal"
+                    initialValues={category}
                 >
-                    <Input />
-                </Form.Item>
-
-                {category?.image && (
-                    <Form.Item label="Поточне зображення">
-                        <div className="h-[100px] w-[100px] overflow-hidden rounded-md border">
-                            <img
-                                src={`${APP_ENV.IMAGES_200_URL}${category?.image}`}
-                                alt="Current"
-                                className="h-full w-full object-cover"
-                            />
-                        </div>
+                    {/* Ховаємо id у формі, бо потрібен для API, але не відображаємо */}
+                    <Form.Item name="id" noStyle>
+                        <Input type="hidden" />
                     </Form.Item>
-                )}
 
-                <Form.Item
-                    name="image"
-                    label="Нове зображення"
-                    valuePropName="fileList"
-                    getValueFromEvent={normFile}
-                >
-                    <Upload
-                        name="image"
-                        listType="picture"
-                        beforeUpload={() => false}
-                        maxCount={1}
+                    <Form.Item<ICategoryEdit>
+                        label="Назва"
+                        name="name"
+                        rules={[{ required: true, message: 'Вкажіть назву категорії' }]}
                     >
-                        <Button icon={<UploadOutlined />}>Вибрати зображення</Button>
-                    </Upload>
-                </Form.Item>
+                        <Input />
+                    </Form.Item>
 
-                <Form.Item label={null}>
-                    <div className="flex justify-between">
+                    <ImageUploadFormItem name="imageFile"
+                                         label="Нове фото"
+                                         src={`${APP_ENV.IMAGES_400_URL}${category.image}`}
+                    />
+
+                    <Form.Item label={null}>
                         <Button type="primary" htmlType="submit">
-                            Зберегти
+                            Змінити
                         </Button>
-                        <Popconfirm
-                            title="Видалити категорію?"
-                            onConfirm={handleDelete}
-                            okText="Так"
-                            cancelText="Ні"
-                        >
-                            <Button danger>Видалити</Button>
-                        </Popconfirm>
-                    </div>
-                </Form.Item>
-            </Form>
+                    </Form.Item>
+                </Form>
+            </div>
         </div>
     );
 };
 
-export default EditCategoryPage;
+export default CategoriesEditPage;

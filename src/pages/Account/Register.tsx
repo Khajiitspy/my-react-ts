@@ -6,13 +6,15 @@ import LoadingOverlay from "../../components/ui/loading/LoadingOverlay.tsx";
 import ImageUploadFormItem from "../../components/ui/form/ImageUploadFormItem.tsx";
 import {loginSuccess} from "../../Store/authSlice.ts";
 import {useDispatch} from "react-redux";
-import {useRegisterMutation} from "../../Services/apiAccount.ts";
+import {useGoogleRegisterMutation, useRegisterMutation} from "../../Services/apiAccount.ts";
+import {GoogleLogin} from "@react-oauth/google";
 
 const RegistrationPage: React.FC = () => {
 
     const navigate = useNavigate();
 
     const [register, {isLoading}] = useRegisterMutation();
+    const [googleRegister] = useGoogleRegisterMutation();
 
     const [form] = Form.useForm<IRegister>();
     const setServerErrors = useFormServerErrors(form);
@@ -91,14 +93,45 @@ const RegistrationPage: React.FC = () => {
                     <ImageUploadFormItem name="imageFile" label="Фоточка" />
 
                     <Form.Item>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition"
-                        >
-                            Увійти
-                        </Button>
+                        <div className="flex flex-col sm:flex-row items-center gap-4">
+                            <Button
+                                type="primary"
+                                htmlType="submit"
+                                className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition"
+                            >
+                                Увійти
+                            </Button>
+
+                            <div className="w-full sm:w-auto">
+                                <GoogleLogin
+                                    onSuccess={async (credentialResponse) => {
+                                        const { credential: id_token } = credentialResponse;
+
+                                        if (!id_token) {
+                                            console.error('No ID token received');
+                                            return;
+                                        }
+
+                                        try {
+                                            const { token } = await googleRegister({ token: id_token }).unwrap();
+                                            dispatch(loginSuccess(token));
+                                            navigate('/');
+                                        } catch (err) {
+                                            console.error("Google registration failed:", err);
+                                            message.error("Реєстрація через Google не вдалася");
+                                        }
+                                    }}
+                                    onError={() => {
+                                        message.error("Google login failed");
+                                    }}
+                                    size="medium"
+                                    theme="outline"
+                                    width="100%" // Responsive
+                                />
+                            </div>
+                        </div>
                     </Form.Item>
+
                 </Form>
             </div>
         </div>

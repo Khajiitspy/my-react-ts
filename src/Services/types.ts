@@ -57,3 +57,31 @@ export interface ProductVariant {
 export interface ProductDetailsDto {
     variants: ProductVariant[];
 }
+
+export interface ProductSizeModel {
+    id: number;
+    name: string;
+}
+
+export interface ProductIngredientModel {
+    id: number;
+    name: string;
+    image: string;
+}
+
+export interface ProductImageModel {
+    id: number;
+    name: string;
+    priority: number;
+}
+
+export interface IProductCreate {
+    name: string;
+    slug: string;
+    price: number;
+    weight: number;
+    categoryId: number;
+    productSizeId: number;
+    ingredientIds?: number[];
+    imageFiles?: File[];
+}
