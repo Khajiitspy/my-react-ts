@@ -41,7 +41,7 @@ const navItems: NavItem[] = [
     {
         name: "Users",
         icon: <UserIcon />,
-        subItems: [{ name: "List", path: "/Admin/users", pro: false }],
+        subItems: [{ name: "List", path: "/admin/users", pro: false }],
     }
 ];
 

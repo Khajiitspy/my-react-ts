@@ -85,3 +85,26 @@ export interface IProductCreate {
     ingredientIds?: number[];
     imageFiles?: File[];
 }
+
+// export interface IUserListItem {
+//     id: number;
+//     email: string;
+//     Username?: string;
+//     image?: string;
+//     loginProvider?: string;
+// }
+
+export interface AdminUserListItem {
+    id: number;
+    fullName: string;
+    email: string;
+    image: string;
+    loginTypes: string[];
+}
+
+export interface PagedResult<T> {
+    items: T[];
+    totalItems: number;
+    page: number;
+    pageSize: number;
+}
