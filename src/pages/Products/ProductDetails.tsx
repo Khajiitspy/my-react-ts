@@ -1,4 +1,3 @@
-// pages/ProductDetailsPage.tsx
 import { useParams} from "react-router-dom";
 import { useState } from "react";
 import { useGetProductByIdQuery } from "../../Services/apiProduct";

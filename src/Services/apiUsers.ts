@@ -1,16 +1,6 @@
-// Services/apiUsers.ts
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { createBaseQuery } from '../Utilities/createBaseQuery.ts';
-import type { AdminUserListItem, PagedResult } from './types.ts';
-
-export interface AdminUserSearchParams {
-    role?: string;
-    fullName?: string;
-    startDate?: string;
-    endDate?: string;
-    page?: number;
-    pageSize?: number;
-}
+import type {AdminUserViewModel, AdminUserListItem, PagedResult, AdminUserSearchParams } from './types.ts';
 
 export const apiUsers = createApi({
     reducerPath: 'api/users',
@@ -23,7 +13,22 @@ export const apiUsers = createApi({
                 params,
             }),
         }),
+        getUserById: builder.query<AdminUserViewModel, Number>({
+          query: (id) => `${id}`,
+        }),
+
+        updateUser: builder.mutation<void, FormData>({
+          query: (data) => ({
+            url: ``,
+            method: "PUT",
+            body: data,
+          }),
+        }),
+
+        getAllRoles: builder.query<string[], void>({
+          query: () => `roles`,
+        }),
     }),
 });
 
-export const { useSearchUsersQuery } = apiUsers;
+export const { useSearchUsersQuery, useUpdateUserMutation, useGetUserByIdQuery, useGetAllRolesQuery } = apiUsers;

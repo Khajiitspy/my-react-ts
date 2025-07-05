@@ -99,7 +99,9 @@ export interface AdminUserListItem {
     fullName: string;
     email: string;
     image: string;
+    dateCreated: string;
     loginTypes: string[];
+    roles: string[];
 }
 
 export interface PagedResult<T> {
@@ -107,4 +109,28 @@ export interface PagedResult<T> {
     totalItems: number;
     page: number;
     pageSize: number;
+}
+
+export interface AdminUserSearchParams {
+    roles?: string[];
+    fullName?: string;
+    registeredFrom?: string;
+    registeredTo?: string;
+    page?: number;
+    pageSize?: number;
+}
+
+export interface AdminUserViewModel {
+    id: number;
+    firstName: string;
+    lastName: string;
+    viewImage: string;
+    roles: string[];
+}
+
+export interface UserEditRequest{
+    firstName: string,
+    lastName: string,
+    Image: File,
+    roles: string[]
 }
