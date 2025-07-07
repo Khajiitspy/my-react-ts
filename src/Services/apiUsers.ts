@@ -1,6 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { createBaseQuery } from '../Utilities/createBaseQuery.ts';
-import type {AdminUserViewModel, AdminUserListItem, PagedResult, AdminUserSearchParams } from './types.ts';
+import type {AdminUserViewModel, AdminUserListItem, PagedResult, AdminUserSearchParams, UserEditRequest } from './types.ts';
+import {serialize} from "object-to-formdata";
 
 export const apiUsers = createApi({
     reducerPath: 'api/users',
@@ -17,12 +18,16 @@ export const apiUsers = createApi({
           query: (id) => `${id}`,
         }),
 
-        updateUser: builder.mutation<void, FormData>({
-          query: (data) => ({
-            url: ``,
-            method: "PUT",
-            body: data,
-          }),
+        updateUser: builder.mutation<void, UserEditRequest>({
+          query: (data) => {
+            const formData = serialize(data, { indices: false });
+
+            return {
+              url: ``,
+              method: "PUT",
+              body: formData,
+            }
+          },
         }),
 
         getAllRoles: builder.query<string[], void>({

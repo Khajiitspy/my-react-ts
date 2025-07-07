@@ -100,7 +100,8 @@ export interface AdminUserListItem {
     email: string;
     image: string;
     dateCreated: string;
-    loginTypes: string[];
+    isLoginGoogle: boolean;
+    isLoginPassword: boolean;
     roles: string[];
 }
 
@@ -129,8 +130,9 @@ export interface AdminUserViewModel {
 }
 
 export interface UserEditRequest{
+    id: number,
     firstName: string,
     lastName: string,
-    Image: File,
+    image?: File,
     roles: string[]
 }

@@ -9,6 +9,7 @@ import { Form, Input, Button, Checkbox, Typography, Upload, message } from "antd
 import type { UploadFile } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import {APP_ENV} from "../../../env";
+import type { UserEditRequest } from "../../../Services/types.ts";
 
 const { Title } = Typography;
 
@@ -34,21 +35,23 @@ const EditUserPage: React.FC = () => {
   }, [user, form]);
 
   const onFinish = async (values: any) => {
-    const formData = new FormData();
-    formData.append("id", String(id));
-    formData.append("firstName", values.firstName);
-    formData.append("lastName", values.lastName);
-    selectedRoles.forEach((role) => formData.append("roles", role));
-
     const file = fileList[0]?.originFileObj;
-    if (file) formData.append("image", file);
+
+    const updateModel: UserEditRequest = {
+      id: Number(id),
+      firstName: values.firstName,
+      lastName: values.lastName,
+      roles: selectedRoles,
+      image: file,
+    };
 
     try {
-      await updateUser(formData).unwrap();
+      await updateUser(updateModel).unwrap();
       message.success("Користувача оновлено");
       navigate(`/admin/users${location.search}`);
     } catch (err) {
       console.error(err);
+      console.log(updateModel);
       message.error("Помилка оновлення користувача");
     }
   };

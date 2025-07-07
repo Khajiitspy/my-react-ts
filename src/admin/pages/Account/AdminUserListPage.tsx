@@ -58,6 +58,8 @@ const UserListPage: React.FC = () => {
 
     const { data, isLoading, isError } = useSearchUsersQuery(searchParams);
 
+    console.log(data);
+
     const handlePageChange = (newPage: number) => {
         updateSearchParams({ page: newPage });
     };

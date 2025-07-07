@@ -41,12 +41,9 @@ const UserTableItem: React.FC<UserTableItemProps> = ({
                 </TableCell>
 
                 <TableCell className="py-3 text-gray-500 dark:text-gray-400">
-                    {user.loginTypes.map((type, index) => (
-                        <span key={type}>
-                            {type}
-                            {index < user.loginTypes.length - 1 && ', '}
-                        </span>
-                    ))}
+                    {user.isLoginGoogle && 'Google'}
+                    {user.isLoginGoogle && user.isLoginPassword && ', '}
+                    {user.isLoginPassword && 'Password'}
                 </TableCell>
 
 
