@@ -8,7 +8,7 @@ interface INewPasswords {
     confirmPassword: string
 }
 
-export const ResetPasswordPage: React.FC = () => {
+const ResetPasswordPage: React.FC = () => {
     const [searchParams] = useSearchParams();
     const token = decodeURIComponent(searchParams.get("token") ?? "");
     const email = decodeURIComponent(searchParams.get("email") ?? "");
@@ -95,3 +95,5 @@ export const ResetPasswordPage: React.FC = () => {
     );
 
 }
+
+export default ResetPasswordPage;

@@ -84,6 +84,7 @@ const UserListPage: React.FC = () => {
         });
     };
 
+    //@ts-ignore
     const handleDateChange = (dates) => {
         if (!dates) {
             updateSearchParams({ registeredFrom: undefined, registeredTo: undefined, page: 1 });

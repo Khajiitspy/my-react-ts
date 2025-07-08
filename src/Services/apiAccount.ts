@@ -12,7 +12,7 @@ interface ILoginResponse {
     token: string;
 }
 
-interface IForgotPasswordRequest {
+export interface IForgotPasswordRequest {
     email: string; 
 }
 

@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import {useGetAllCategoriesQuery} from "../../Services/apiCategory.ts";
-import {API_BASE_URL} from "../../constants/api.ts";
 import {APP_ENV} from "../../env";
 
 const UserHomePage: React.FC = () => {
