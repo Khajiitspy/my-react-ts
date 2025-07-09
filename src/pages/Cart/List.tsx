@@ -33,6 +33,7 @@ const CartPage = () => {
     {
       title: 'Quantity',
       dataIndex: 'quantity',
+      //@ts-ignore
       render: (_, item) => (
         <div style={{ display: 'flex', gap: 8 }}>
           <Button onClick={() => addToCart({ productVariantId: item.productVariantId, quantity: -1 })}>−</Button>
@@ -43,10 +44,12 @@ const CartPage = () => {
     },
     {
       title: 'Total',
+      //@ts-ignore
       render: (_, item) => `₴${item.price * item.quantity}`,
     },
     {
       title: 'Actions',
+      //@ts-ignore
       render: (_, item) => (
         <Button danger onClick={() => removeFromCart(item.productVariantId)}>
           Remove
