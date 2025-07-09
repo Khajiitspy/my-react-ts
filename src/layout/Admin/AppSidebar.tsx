@@ -9,7 +9,8 @@ import {
     PieChartIcon,
     PlugInIcon,
     TableIcon,
-    UserIcon
+    UserIcon,
+    AngleLeftIcon
 } from "../../icons";
 import { useSidebar } from "../../context/SidebarContext";
 
@@ -72,6 +73,13 @@ const othersItems: NavItem[] = [
         subItems: [
             { name: "Sign In", path: "/signin", pro: false },
             { name: "Sign Up", path: "/signup", pro: false },
+        ],
+    },
+    {
+        icon: <AngleLeftIcon />,
+        name: "Navigation",
+        subItems: [
+            { name: "Back to Home", path: "/", pro: false },
         ],
     },
 ];

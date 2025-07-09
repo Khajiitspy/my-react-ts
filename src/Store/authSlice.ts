@@ -1,7 +1,8 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import { jwtDecode } from 'jwt-decode';
+import type { RootState } from '../Store';
 
-interface User {
+export interface User {
     name: string;
     email: string;
     image: string;
@@ -69,5 +70,6 @@ const authSlice = createSlice({
 
 export const { loginSuccess, logout } = authSlice.actions;
 
+export const selectCurrentUser = (state: RootState) => state.auth.user;
 
 export default authSlice.reducer;

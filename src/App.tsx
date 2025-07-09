@@ -22,6 +22,7 @@ const ForgotSuccessPage = React.lazy(() => import("./pages/Account/ForgotSuccess
 const ResetPasswordPage = React.lazy(() => import("./pages/Account/ResetPasswordPage.tsx"));
 const AdminUserListPage = React.lazy(() => import("./admin/pages/Account/AdminUserListPage.tsx"));
 const EditUserPage = React.lazy(() => import("./admin/pages/Account/EditUserPage.tsx"));
+const CartPage = React.lazy(() => import("./pages/Cart/List.tsx"));
 
 const App: React.FC = () => {
 
@@ -42,6 +43,7 @@ const App: React.FC = () => {
                             <Route path="register" element={<RegistrationPage />} />
                             <Route path="products" element={<ProductsPage />} />
                             <Route path="/products/:id" element={<ProductDetailsPage />} />
+                            <Route path="cart" element={<CartPage/>}/>
                         </Route>
 
 

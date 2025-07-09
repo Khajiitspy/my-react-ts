@@ -136,3 +136,18 @@ export interface UserEditRequest{
     image?: File,
     roles: string[]
 }
+
+export interface CartItemDto {
+  productVariantId: number;
+  name: string;
+  categoryId: number;
+  categoryName: string;
+  quantity: number;
+  price: number;
+  imageName: string;
+}
+
+export interface CartItemRequestDto {
+  productVariantId: number;
+  quantity: number;
+}

@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useGetProductsQuery } from '../../Services/apiProduct';
 import {useNavigate} from 'react-router-dom';
 import {APP_ENV} from "../../env";
+import { useCart } from "../../context/CartContext";
 
 const ProductsPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 6;
     const navigate = useNavigate();
+    const { addToCart } = useCart();
 
     const { data, isLoading, error } = useGetProductsQuery({
         search: searchTerm,
@@ -49,17 +51,35 @@ const ProductsPage: React.FC = () => {
                 {data?.items.map(product => (
                     <div
                         key={product.id}
-                        onClick={() => navigate(`/products/${product.id}`)}
-                        className="border rounded border-amber-500 shadow-sm overflow-hidden cursor-pointer hover:shadow-md transition"
+                        className="border rounded border-amber-500 shadow-sm overflow-hidden hover:shadow-md transition flex flex-col bg-white dark:bg-gray-800"
                     >
-                        <img
-                            src={`${APP_ENV.IMAGES_800_URL}${product.image}`}
-                            alt={product.name}
-                            className="w-full h-48 object-cover"
-                        />
-                        <div className="p-4 flex flex-col h-full bg-gray-500">
-                            <h3 className="text-lg text-amber-500 font-semibold">{product.name}</h3>
-                            <p className="text-green-400">₴{product.price}</p>
+                        <div
+                            onClick={() => navigate(`/products/${product.id}`)}
+                            className="cursor-pointer"
+                        >
+                            <img
+                                src={`${APP_ENV.IMAGES_800_URL}${product.image}`}
+                                alt={product.name}
+                                className="w-full h-48 object-cover"
+                            />
+                            <div className="p-4 flex-grow">
+                                <h3 className="text-lg text-amber-500 font-semibold">{product.name}</h3>
+                                <p className="text-green-600 font-medium mt-1">₴{product.price}</p>
+                            </div>
+                        </div>
+
+                        <div className="p-4 pt-0">
+                            <button
+                                onClick={() =>
+                                    addToCart({
+                                        productVariantId: product.id,
+                                        quantity: 1
+                                    })
+                                }
+                                className="w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded shadow font-medium transition"
+                            >
+                                Додати до кошика
+                            </button>
                         </div>
                     </div>
                 ))}

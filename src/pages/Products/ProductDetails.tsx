@@ -2,12 +2,14 @@ import { useParams} from "react-router-dom";
 import { useState } from "react";
 import { useGetProductByIdQuery } from "../../Services/apiProduct";
 import {APP_ENV} from "../../env";
+import { useCart } from "../../context/CartContext"; // Adjust path if needed
 
 const ProductDetailsPage = () => {
     const { id } = useParams();
     const { data: product, isLoading } = useGetProductByIdQuery(Number(id));
     const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const { addToCart } = useCart();
 
     if (isLoading || !product) return <div>Loading...</div>;
 
@@ -101,6 +103,19 @@ const ProductDetailsPage = () => {
                             </div>
                         ))}
                     </div>
+                    <div className="mt-10">
+                        <button
+                            onClick={() =>
+                                addToCart({
+                                    productVariantId: currentVariant.id,
+                                    quantity: 1
+                                })
+                            }
+                            className="bg-amber-500 hover:bg-amber-600 text-white text-lg font-semibold px-6 py-3 rounded shadow transition"
+                        >
+                            Додати до кошика
+                        </button>
+                    </div> 
                 </div>
             </div>
         </div>
