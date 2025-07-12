@@ -1,13 +1,100 @@
 import { Table, Button, Image, Typography } from 'antd';
-import { useCart } from '../../context/CartContext';
+// import { useCart } from '../../context/CartContext';
 import {APP_ENV} from "../../env";
+import {useGetCartItemsQuery, useAddToCartMutation, useRemoveFromCartMutation} from "../../Services/apiCart.ts";
+import type { CartItemDto } from '../../Services/types'; 
+import {useAppDispatch, useAppSelector} from "../../Store";
+import {createUpdateCartLocal} from "../../Store/cartSlice.ts";
+import {message} from "antd";
+import {useNavigate} from "react-router-dom";
 
 const { Title } = Typography;
 
 const CartPage = () => {
-  const { cartItems, addToCart, removeFromCart } = useCart();
+  // const { cartItems, addToCart, removeFromCart } = useCart();
 
+  const navigate = useNavigate();
+  const {user} = useAppSelector(state => state.auth);
+
+  var cartItems = new Array<CartItemDto>();
+  if(user){
+    const {data} = useGetCartItemsQuery(); // Maybe you can combine these 2 lines.
+    cartItems = data || [];
+  } else{
+    cartItems = localStorage.getItem('cart') ? JSON.parse(String(localStorage.getItem('cart'))).items : []
+  }
+  const dispatch = useAppDispatch();
+  const [addToCart] = useAddToCartMutation();
+  const [removeCartItem] = useRemoveFromCartMutation();
   const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+  const handleAddToCart = async (product: any) => {
+    if (!product) return;
+
+    console.log(product);
+    
+    const newItem: CartItemDto = { // Most of those values are not needed since in this page, you can only add existing ones, so only the quantity changes.
+        productVariantId: product.productVariantId,
+        name: "",
+        categoryId: 0,
+        categoryName: "",
+        quantity: product.quantity,
+        price: 0,
+        imageName: ""
+    }
+    
+    if(!user){
+        dispatch(createUpdateCartLocal(newItem));
+    }
+    else{
+        try {
+          await addToCart({
+              productVariantId: product.productVariantId,
+              quantity: product.quantity
+          }).unwrap();
+
+          console.log("reload?");
+          navigate("/cart"); // does not work for user. addToCart not done?
+          message.success("Added product to cart!");
+        } catch (err) {
+          console.error(err);
+          console.log(product);
+          message.error("Failed to add product to cart!");
+        }
+    }
+    navigate("/cart");
+  };
+
+  const removeFromCart = async (product: any) => {
+    if (!product) return;
+
+    console.log(product);
+    
+    const newItem: CartItemDto = { // Most of those values are not needed since in this page, you can only add existing ones, so only the quantity changes.
+        productVariantId: product.productVariantId,
+        name: "",
+        categoryId: 0,
+        categoryName: "",
+        quantity: product.quantity, // Expects a quantity greater than or equal to its current quantity
+        price: 0,
+        imageName: ""
+    }
+    
+    if(!user){
+        dispatch(createUpdateCartLocal(newItem));
+    }
+    else{
+        try {
+          await removeCartItem (product.Id).unwrap();
+          message.success("Removed product from cart!");
+        } catch (err) {
+          console.error(err);
+          console.log(product);
+          message.error("Failed to remove product from cart!");
+        }
+    }
+    navigate("/cart");
+  }
 
   const columns = [
     {
@@ -36,9 +123,9 @@ const CartPage = () => {
       //@ts-ignore
       render: (_, item) => (
         <div style={{ display: 'flex', gap: 8 }}>
-          <Button onClick={() => addToCart({ productVariantId: item.productVariantId, quantity: -1 })}>−</Button>
+          <Button onClick={() => handleAddToCart({ productVariantId: item.productVariantId, quantity: -1 })}>−</Button>
           <span>{item.quantity}</span>
-          <Button onClick={() => addToCart({ productVariantId: item.productVariantId, quantity: 1 })}>+</Button>
+          <Button onClick={() => handleAddToCart({ productVariantId: item.productVariantId, quantity: 1 })}>+</Button>
         </div>
       ),
     },
@@ -51,7 +138,7 @@ const CartPage = () => {
       title: 'Actions',
       //@ts-ignore
       render: (_, item) => (
-        <Button danger onClick={() => removeFromCart(item.productVariantId)}>
+        <Button danger onClick={() => removeFromCart({ productVariantId: item.productVariantId, quantity: item.quantity * -1 })}>
           Remove
         </Button>
       ),

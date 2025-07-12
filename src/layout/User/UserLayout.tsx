@@ -6,11 +6,10 @@ import {Button} from "antd";
 import {APP_ENV} from "../../env";
 import { ShoppingCartOutlined } from '@ant-design/icons';
 import { Badge } from 'antd';
-import { useCart } from "../../context/CartContext";
 
 const UserLayout: React.FC = () => {
     const {user} = useAppSelector(state => state.auth);
-    const { cartItems } = useCart();
+    var {items} = useAppSelector(state => state.cart) || -1;
     const dispatch = useAppDispatch();
     //const navigate = useNavigate();
 
@@ -25,28 +24,31 @@ const UserLayout: React.FC = () => {
         <div className="min-h-screen flex flex-col bg-white text-gray-900 dark:bg-gray-900 dark:text-white">
             <header className="w-full py-4 px-6 bg-orange-500 text-white shadow-md flex justify-between">
                 <Link to="/" className="text-xl font-semibold">FoodDelivery</Link>
+                <div className="flex items-center gap-4">
+                {user && (
+                  <Link to="/account" className="flex items-center gap-2">
+                    <img
+                      src={user.image ? `${APP_ENV.IMAGES_50_URL}${user.image}` : '/images/user/default.png'}
+                      alt={user.name}
+                      className="w-10 h-10 rounded-full border-2 border-white object-cover"
+                    />
+                    <span className="font-medium">{user.name}</span>
+                  </Link>
+                )}
+
+                <Link to="/cart" className="relative">
+                  <Badge count={items.length} offset={[0, 0]}>
+                    <Button
+                      icon={<ShoppingCartOutlined />}
+                      className="bg-white text-orange-500 border-none hover:bg-orange-100"
+                    >
+                      Кошик
+                    </Button>
+                  </Badge>
+                </Link>
+
                 {user ? (
-                  <div className="flex items-center gap-4">
-                    <Link to="/account" className="flex items-center gap-2">
-                      <img
-                        src={user.image ? `${APP_ENV.IMAGES_50_URL}${user.image}` : '/images/user/default.png'}
-                        alt={user.name}
-                        className="w-10 h-10 rounded-full border-2 border-white object-cover"
-                      />
-                      <span className="font-medium">{user.name}</span>
-                    </Link>
-
-                    <Link to="/cart" className="relative">
-                      <Badge count={cartItems.length} offset={[0, 0]}>
-                        <Button
-                          icon={<ShoppingCartOutlined />}
-                          className="bg-white text-orange-500 border-none hover:bg-orange-100"
-                        >
-                          Кошик
-                        </Button>
-                      </Badge>
-                    </Link>
-
+                  <>
                     {user.roles.includes("Admin") && (
                         <Link
                           to="/admin/home"
@@ -55,30 +57,31 @@ const UserLayout: React.FC = () => {
                           Адмінка
                         </Link>
                     )}
-                        
+                      
                     <Button
                       onClick={() => dispatch(logout())}
                       className="bg-white text-orange-500 border-none hover:bg-orange-100"
                     >
                       Вихід
                     </Button>
-                  </div>
-                ) : (
-                    <div className="flex items-center gap-4">
-                        <Link
-                            to="login"
-                            className="bg-white text-orange-500 px-4 py-2 rounded hover:bg-orange-100 transition"
-                        >
-                            Вхід
-                        </Link>
-                        <Link
-                            to="register"
-                            className="bg-white text-orange-500 px-4 py-2 rounded hover:bg-orange-100 transition"
-                        >
-                            Реєстрація
-                        </Link>
-                    </div>
+                  </>
+                  ) : (
+                  <>
+                    <Link
+                        to="login"
+                        className="bg-white text-orange-500 px-4 py-2 rounded hover:bg-orange-100 transition"
+                    >
+                        Вхід
+                    </Link>
+                    <Link
+                        to="register"
+                        className="bg-white text-orange-500 px-4 py-2 rounded hover:bg-orange-100 transition"
+                    >
+                        Реєстрація
+                    </Link>
+                  </>
                 )}
+                </div>
             </header>
 
             <main className="flex-1 p-4 md:p-6">

@@ -1,6 +1,7 @@
 import {configureStore} from '@reduxjs/toolkit';
 import {apiCategory} from "../Services/apiCategory.ts";
 import authReducer from './authSlice';
+import cartReducer from './cartSlice';
 import {apiAccount} from "../Services/apiAccount.ts";
 import {type TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
 import {apiProduct} from "../Services/apiProduct.ts";
@@ -16,6 +17,7 @@ export const Store = configureStore({
         [apiUsers.reducerPath]: apiUsers.reducer,
         [apiCart.reducerPath]: apiCart.reducer,
         auth: authReducer,
+        cart: cartReducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(apiCategory.middleware, apiAccount.middleware, apiProduct.middleware, apiUsers.middleware, apiCart.middleware),

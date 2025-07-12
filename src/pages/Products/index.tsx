@@ -2,14 +2,21 @@ import { useState } from 'react';
 import { useGetProductsQuery } from '../../Services/apiProduct';
 import {useNavigate} from 'react-router-dom';
 import {APP_ENV} from "../../env";
-import { useCart } from "../../context/CartContext";
+import {createUpdateCartLocal} from "../../Store/cartSlice.ts";
+import type { CartItemDto } from '../../Services/types.ts';
+import {useAppDispatch, useAppSelector} from "../../Store";
+import {useAddToCartMutation} from "../../Services/apiCart.ts";
+import {message} from "antd";
 
 const ProductsPage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 6;
     const navigate = useNavigate();
-    const { addToCart } = useCart();
+    // const {items} = useAppSelector(state => state.cart);
+    const {user} = useAppSelector(state => state.auth);
+    const dispatch = useAppDispatch();
+    const [addToCart] = useAddToCartMutation();
 
     const { data, isLoading, error } = useGetProductsQuery({
         search: searchTerm,
@@ -29,6 +36,40 @@ const ProductsPage: React.FC = () => {
 
     const goToPage = (page: number) => {
         if (page >= 1 && page <= totalPages) setCurrentPage(page);
+    };
+
+
+    const handleAddToCart = async (product: any) => {
+        if (!product) return;
+
+        console.log(product);
+        
+        const newItem: CartItemDto = {
+            productVariantId: product.productVariantId,
+            name: product.name,
+            categoryId: 0,
+            categoryName: "",
+            quantity: product.quantity,
+            price: product.price,
+            imageName: product.imageName
+        }
+        
+        if(!user){
+            dispatch(createUpdateCartLocal(newItem));
+        }
+        else{
+            try {
+              await addToCart({
+                    productVariantId: product.id,
+                    quantity: 1
+                }).unwrap();
+              message.success("Added product to cart!");
+            } catch (err) {
+              console.error(err);
+              console.log(product);
+              message.error("Failed to add product to cart!");
+            }
+        }
     };
 
     return (
@@ -71,9 +112,12 @@ const ProductsPage: React.FC = () => {
                         <div className="p-4 pt-0">
                             <button
                                 onClick={() =>
-                                    addToCart({
+                                    handleAddToCart({
                                         productVariantId: product.id,
-                                        quantity: 1
+                                        quantity: 1,
+                                        imageName: product.image,
+                                        price: product.price,
+                                        name: product.name
                                     })
                                 }
                                 className="w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded shadow font-medium transition"

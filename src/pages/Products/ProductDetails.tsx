@@ -2,14 +2,22 @@ import { useParams} from "react-router-dom";
 import { useState } from "react";
 import { useGetProductByIdQuery } from "../../Services/apiProduct";
 import {APP_ENV} from "../../env";
-import { useCart } from "../../context/CartContext"; // Adjust path if needed
+// import { useCart } from "../../context/CartContext";
+import type { CartItemDto } from "../../Services/types";
+import {useAppDispatch, useAppSelector} from "../../Store";
+import {useAddToCartMutation} from "../../Services/apiCart.ts";
+import {createUpdateCartLocal} from "../../Store/cartSlice.ts";
+import {message} from "antd";
 
 const ProductDetailsPage = () => {
     const { id } = useParams();
     const { data: product, isLoading } = useGetProductByIdQuery(Number(id));
     const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const { addToCart } = useCart();
+    const {user} = useAppSelector(state => state.auth);
+    const dispatch = useAppDispatch();
+    const [addToCart] = useAddToCartMutation();
+    // const { addToCart } = useCart();
 
     if (isLoading || !product) return <div>Loading...</div>;
 
@@ -39,6 +47,39 @@ const ProductDetailsPage = () => {
             (prev - 1 + (currentVariant.images?.length || 1)) %
             (currentVariant.images?.length || 1)
         );
+    };
+
+    const handleAddToCart = async (product: any) => {
+        if (!product) return;
+
+        console.log(product);
+        
+        const newItem: CartItemDto = {
+            productVariantId: product.productVariantId,
+            name: product.name,
+            categoryId: 0,
+            categoryName: "",
+            quantity: product.quantity,
+            price: product.price,
+            imageName: product.imageName
+        }
+        
+        if(!user){
+            dispatch(createUpdateCartLocal(newItem));
+        }
+        else{
+            try {
+              await addToCart({
+                    productVariantId: product.id,
+                    quantity: 1
+                }).unwrap();
+              message.success("Added product to cart!");
+            } catch (err) {
+              console.error(err);
+              console.log(product);
+              message.error("Failed to add product to cart!");
+            }
+        }
     };
 
     return (
@@ -106,9 +147,13 @@ const ProductDetailsPage = () => {
                     <div className="mt-10">
                         <button
                             onClick={() =>
-                                addToCart({
+                                handleAddToCart({
                                     productVariantId: currentVariant.id,
-                                    quantity: 1
+                                    quantity: 1,
+                                    name: currentVariant.name,
+                                    categoryName: currentVariant.category,
+                                    price: currentVariant.price,
+                                    imageName: currentVariant.images[0]
                                 })
                             }
                             className="bg-amber-500 hover:bg-amber-600 text-white text-lg font-semibold px-6 py-3 rounded shadow transition"

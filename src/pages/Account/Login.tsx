@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { Form, type FormProps, Input } from 'antd';
 import {type ILoginRequest, useLoginByGoogleMutation, useLoginMutation} from "../../Services/apiAccount.ts";
+import {useAddToCartMutation} from "../../Services/apiCart.ts"
 import {getUserFromToken, loginSuccess} from "../../Store/authSlice.ts";
 import {useAppDispatch} from "../../Store";
-
 import { useGoogleLogin } from '@react-oauth/google';
 import LoadingOverlay from "../../components/ui/loading/LoadingOverlay.tsx";
 import {Link} from "react-router"
@@ -14,6 +14,7 @@ import {Link} from "react-router"
 const LoginPage: React.FC = () => {
     const [login, { isLoading: isLoginLoading }] = useLoginMutation();
     const [loginByGoogle, { isLoading: isGoogleLoading }] = useLoginByGoogleMutation();
+    const [addToCart] = useAddToCartMutation();
 
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
@@ -26,9 +27,16 @@ const LoginPage: React.FC = () => {
             const response = await login(values).unwrap();
             const { token } = response;
             dispatch(loginSuccess(token));
-
             const user = getUserFromToken(token);
             console.log("user", user);
+            const cartItems = localStorage.getItem('cart') ? JSON.parse(String(localStorage.getItem('cart'))).items : [];
+            //@ts-ignore
+            cartItems.forEach(item => {
+                addToCart({
+                    productVariantId: item.productVariantId,
+                    quantity: item.quantity
+                })
+            });
             if (!user || !user.roles.includes("Admin")) {
                 navigate('/');
             }
