@@ -25,6 +25,12 @@ export const apiCart = createApi({
         method: 'DELETE',
       }),
     }),
+    orderCart: builder.mutation<void,void>({
+      query: () => ({
+        url: `OrderCart`,
+        method: 'POST',
+      }),
+    }),
   }),
 });
 
@@ -32,4 +38,5 @@ export const {
   useGetCartItemsQuery,
   useAddToCartMutation,
   useRemoveFromCartMutation,
+  useOrderCartMutation
 } = apiCart;

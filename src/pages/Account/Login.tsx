@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Form, type FormProps, Input } from 'antd';
 import {type ILoginRequest, useLoginByGoogleMutation, useLoginMutation} from "../../Services/apiAccount.ts";
-import {useAddToCartMutation} from "../../Services/apiCart.ts"
+import {useAddToCartMutation} from "../../Services/apiCart.ts";
 import {getUserFromToken, loginSuccess} from "../../Store/authSlice.ts";
 import {useAppDispatch} from "../../Store";
 import { useGoogleLogin } from '@react-oauth/google';
@@ -37,6 +37,7 @@ const LoginPage: React.FC = () => {
                     quantity: item.quantity
                 })
             });
+            localStorage.removeItem('cart');
             if (!user || !user.roles.includes("Admin")) {
                 navigate('/');
             }

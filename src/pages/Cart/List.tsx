@@ -26,7 +26,9 @@ const CartPage = () => {
   const dispatch = useAppDispatch();
   const [addToCart] = useAddToCartMutation();
   const [removeCartItem] = useRemoveFromCartMutation();
-  const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const total = cartItems.reduce((acc, item) => {
+  console.log(acc);
+  return acc + (item.quantity * item.price)}, 0);
 
   const handleAddToCart = async (product: any) => {
     if (!product) return;
@@ -154,8 +156,16 @@ const CartPage = () => {
         rowKey="productVariantId"
         pagination={false}
       />
-      <div style={{ textAlign: 'right', marginTop: 20 }}>
-        <Title level={4}>Total: ₴{total.toFixed(2)}</Title>
+      <div className='flex justify-between'>
+        <div style={{ textAlign: 'right', marginTop: 20 }}>
+          <Title level={4}>Total: ₴{total.toFixed(2)}</Title>
+        </div>
+        <button
+          onClick={() => navigate("/order/confirm")}
+          className="bg-amber-500 hover:bg-amber-600 text-white text-lg font-semibold px-6 py-3 rounded shadow transition mt-5"
+        >
+          Order Cart Items
+        </button>
       </div>
     </div>
   );

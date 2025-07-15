@@ -60,7 +60,7 @@ const ProductsPage: React.FC = () => {
         else{
             try {
               await addToCart({
-                    productVariantId: product.id,
+                    productVariantId: product.productVariantId,
                     quantity: 1
                 }).unwrap();
               message.success("Added product to cart!");

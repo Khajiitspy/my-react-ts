@@ -151,3 +151,19 @@ export interface CartItemRequestDto {
   productVariantId: number;
   quantity: number;
 }
+
+export interface OrderItemModel{
+  id: number;
+  productVariantName: string;
+  count: number;
+  priceBuy: number;
+  total: number;
+}
+
+export interface OrderModel {
+  id: number;
+  status: string;
+  createdAt: string;
+  items: OrderItemModel[];
+  total: number;
+}

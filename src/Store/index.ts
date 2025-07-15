@@ -7,7 +7,7 @@ import {type TypedUseSelectorHook, useDispatch, useSelector} from "react-redux";
 import {apiProduct} from "../Services/apiProduct.ts";
 import {apiUsers} from "../Services/apiUsers.ts";
 import {apiCart} from "../Services/apiCart.ts";
-
+import {apiOrders} from "../Services/apiOrders.ts";
 
 export const Store = configureStore({
     reducer: {
@@ -16,11 +16,12 @@ export const Store = configureStore({
         [apiProduct.reducerPath]: apiProduct.reducer,
         [apiUsers.reducerPath]: apiUsers.reducer,
         [apiCart.reducerPath]: apiCart.reducer,
+        [apiOrders.reducerPath]: apiOrders.reducer,
         auth: authReducer,
         cart: cartReducer,
     },
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware().concat(apiCategory.middleware, apiAccount.middleware, apiProduct.middleware, apiUsers.middleware, apiCart.middleware),
+        getDefaultMiddleware().concat(apiCategory.middleware, apiAccount.middleware, apiProduct.middleware, apiUsers.middleware, apiCart.middleware, apiOrders.middleware),
 });
 
 export type RootState = ReturnType<typeof Store.getState>;

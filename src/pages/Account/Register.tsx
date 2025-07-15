@@ -7,6 +7,7 @@ import ImageUploadFormItem from "../../components/ui/form/ImageUploadFormItem.ts
 import {loginSuccess} from "../../Store/authSlice.ts";
 import {useDispatch} from "react-redux";
 import {useGoogleRegisterMutation, useRegisterMutation} from "../../Services/apiAccount.ts";
+import {useAddToCartMutation} from "../../Services/apiCart.ts";
 import {GoogleLogin} from "@react-oauth/google";
 
 const RegistrationPage: React.FC = () => {
@@ -15,6 +16,7 @@ const RegistrationPage: React.FC = () => {
 
     const [register, {isLoading}] = useRegisterMutation();
     const [googleRegister] = useGoogleRegisterMutation();
+    const [addToCart] = useAddToCartMutation();
 
     const [form] = Form.useForm<IRegister>();
     const setServerErrors = useFormServerErrors(form);
@@ -25,6 +27,14 @@ const RegistrationPage: React.FC = () => {
         try {
             const result = await register(values).unwrap();
             dispatch(loginSuccess(result.token));
+            //@ts-ignore
+            cartItems.forEach(item => {
+                addToCart({
+                    productVariantId: item.productVariantId,
+                    quantity: item.quantity
+                })
+            });
+            localStorage.removeItem('cart');
             navigate('/');
         } catch (error) {
             const serverError = error as ServerError;

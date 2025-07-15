@@ -10,6 +10,7 @@ import { Badge } from 'antd';
 const UserLayout: React.FC = () => {
     const {user} = useAppSelector(state => state.auth);
     var {items} = useAppSelector(state => state.cart) || -1;
+    console.log(items);
     const dispatch = useAppDispatch();
     //const navigate = useNavigate();
 
