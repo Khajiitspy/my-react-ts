@@ -2,10 +2,10 @@ import React from 'react';
 import { useGetOrdersQuery } from '../../Services/apiOrders';
 import { Card, Collapse, Spin, Typography, Table, Alert } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import type { OrderItemModel, OrderModel } from '../../Services/types.ts';
+import type { OrderItemModel } from '../../Services/types.ts';
 
 const { Panel } = Collapse;
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const OrderHistory: React.FC = () => {
   const { data: orders, isLoading, isError, error } = useGetOrdersQuery();
