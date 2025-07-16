@@ -70,6 +70,7 @@ const ProductsPage: React.FC = () => {
               message.error("Failed to add product to cart!");
             }
         }
+        dispatch(createUpdateCartLocal(newItem));
     };
 
     return (

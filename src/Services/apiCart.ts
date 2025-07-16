@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { createBaseQuery } from '../Utilities/createBaseQuery';
-import type { CartItemDto, CartItemRequestDto } from './types';
+import type {OrderInformation, CartItemDto, CartItemRequestDto } from './types';
 
 export const apiCart = createApi({
   reducerPath: 'api/cart',
@@ -25,10 +25,11 @@ export const apiCart = createApi({
         method: 'DELETE',
       }),
     }),
-    orderCart: builder.mutation<void,void>({
-      query: () => ({
+    orderCart: builder.mutation<void,OrderInformation>({
+      query: (item) => ({
         url: `OrderCart`,
         method: 'POST',
+        body: item
       }),
     }),
   }),

@@ -166,4 +166,28 @@ export interface OrderModel {
   createdAt: string;
   items: OrderItemModel[];
   total: number;
+  city: string;
+  postDepartment: string;
+  paymentType: string;
+  phoneNumber: string;
+  recipientName: string;
+}
+
+export interface OrderInformation {
+  cityId: number;
+  postDepartmentId: number;
+  paymentTypeId: number;
+  phoneNumber: string;
+  recipientName: string;
+}
+
+export interface OrderOptions {
+    cities: SimpleValue[];
+    postDepartments: SimpleValue[];
+    paymentTypes: SimpleValue[];
+}
+
+export interface SimpleValue {
+    name: string;
+    id: number;
 }

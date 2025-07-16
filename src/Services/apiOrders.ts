@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { createBaseQuery } from '../Utilities/createBaseQuery.ts';
-import type {OrderModel} from "./types.ts";
+import type {OrderOptions, OrderModel} from "./types.ts";
 
 export const apiOrders = createApi({
     reducerPath: 'api/orders',
@@ -11,9 +11,15 @@ export const apiOrders = createApi({
                 url: '',
             }),
         }),
+        getOrderOptions: builder.query<OrderOptions, void>({
+            query: () => ({
+                url: 'options',
+            }),
+        }),
     }),
 });
 
 export const {
-    useGetOrdersQuery
+    useGetOrdersQuery,
+    useGetOrderOptionsQuery
 } = apiOrders;
