@@ -12,10 +12,15 @@ import {
   useGetCartItemsQuery,
   useOrderCartMutation,
 } from '../../Services/apiCart';
-import { useGetOrderOptionsQuery } from '../../Services/apiOrders';
+import {
+  useGetCitiesQuery,
+  useGetPostDepartmentsQuery,
+  useGetPaymentTypesQuery,
+} from '../../Services/apiOrders';
 import type { CartItemDto } from '../../Services/types';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import debounce from 'lodash/debounce';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -27,35 +32,57 @@ const OrderConfirmPage = () => {
   const [form] = Form.useForm();
   const [orderCart] = useOrderCartMutation();
 
-  const { data: cartData } = useGetCartItemsQuery(undefined, { skip: !user });
-  const { data: orderOptions, isLoading: loadingOptions } = useGetOrderOptionsQuery();
+  const [searchCity, setSearchCity] = useState('');
+  const [selectedCityId, setSelectedCityId] = useState<number | null>(null);
+
+  const { data: cities, isLoading: loadingCities } = useGetCitiesQuery(searchCity);
+  const { data: departments, isLoading: loadingDepartments } = useGetPostDepartmentsQuery(selectedCityId!, {
+    skip: !selectedCityId,
+  });
+  const { data: paymentTypes } = useGetPaymentTypesQuery();
+
+  const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   useEffect(() => {
     if (user) {
       setCartItems(cartData || []);
+      // Fill initial values with user's info
+      form.setFieldsValue({
+        recipientName: user.name,
+        email: user.email,
+      });
     } else {
       const localCart = localStorage.getItem('cart');
       const parsedCart = localCart ? JSON.parse(localCart) : { items: [] };
       setCartItems(parsedCart.items);
     }
-  }, [cartData, user]);
+  }, [user]);
 
-  const total = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const { data: cartData } = useGetCartItemsQuery(undefined, { skip: !user });
 
   const handleOrder = async (values: any) => {
     if (user) {
       try {
         await orderCart(values).unwrap();
-        message.success('User cart has been ordered!');
+        message.success('Your order has been placed! Check your email.');
         navigate('/');
       } catch (err) {
         console.error(err);
-        message.error('Failed to order user cart!');
+        message.error('Failed to place the order.');
       }
     } else {
-      message.error('Must login first!');
+      message.error('Please log in to complete your order.');
       navigate('/login');
     }
+  };
+
+  const debouncedSearch = debounce((value: string) => {
+    setSearchCity(value);
+  }, 300);
+
+  const handleCityChange = (value: number) => {
+    setSelectedCityId(value);
+    form.setFieldsValue({ postDepartmentId: undefined }); // reset department on city change
   };
 
   const columns = [
@@ -97,88 +124,112 @@ const OrderConfirmPage = () => {
         Your Information
       </Title>
 
-      {loadingOptions ? (
-        <Spin tip="Loading options..." />
-      ) : (
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleOrder}
-          style={{ marginTop: 20 }}
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={handleOrder}
+        style={{ marginTop: 20 }}
+      >
+        <Form.Item
+          label="Recipient Name"
+          name="recipientName"
+          rules={[{ required: true, message: 'Please enter recipient name' }]}
         >
-          <Form.Item
-            label="Recipient Name"
-            name="recipientName"
-            rules={[{ required: true, message: 'Please enter your full name' }]}
-          >
-            <Input placeholder="John Doe" />
-          </Form.Item>
+          <Input placeholder="John Doe" />
+        </Form.Item>
 
-          <Form.Item
-            label="Phone Number"
-            name="phoneNumber"
-            rules={[
-              { required: true, message: 'Please enter your phone number' },
-              { pattern: /^\+?\d{7,14}$/, message: 'Enter a valid phone number' },
-            ]}
-          >
-            <Input placeholder="+380123456789" />
-          </Form.Item>
+        <Form.Item
+          label="Email"
+          name="email"
+          rules={[
+            { required: true, message: 'Please enter an Email' },
+          ]}
+        >
+          <Input placeholder="example@mail.me" />
+        </Form.Item>
 
-          <Form.Item
-            label="City"
-            name="cityId"
-            rules={[{ required: true, message: 'Please select your city' }]}
-          >
-            <Select placeholder="Select a city">
-              {orderOptions?.cities.map((city) => (
-                <Option key={city.id} value={city.id}>
-                  {city.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
+        <Form.Item
+          label="Phone Number"
+          name="phoneNumber"
+          rules={[
+            { required: true, message: 'Please enter phone number' },
+            {
+              pattern: /^\+?\d{7,14}$/,
+              message: 'Enter a valid phone number',
+            },
+          ]}
+        >
+          <Input placeholder="+380123456789" />
+        </Form.Item>
 
+        <Form.Item
+          label="City"
+          name="cityId"
+          rules={[{ required: true, message: 'Please select a city' }]}
+        >
+          <Select
+            showSearch
+            placeholder="Search and select city"
+            filterOption={false}
+            onSearch={debouncedSearch}
+            onChange={handleCityChange}
+            notFoundContent={loadingCities ? <Spin size="small" /> : null}
+          >
+            {cities?.map((city) => (
+              <Option key={city.id} value={city.id}>
+                {city.name}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        {selectedCityId && (
           <Form.Item
             label="Post Department"
             name="postDepartmentId"
             rules={[
-              { required: true, message: 'Please select a post department' },
+              { required: true, message: 'Please select post department' },
             ]}
           >
-            <Select placeholder="Select a department">
-              {orderOptions?.postDepartments.map((dept) => (
+            <Select
+              placeholder="Select a department"
+              loading={loadingDepartments}
+              notFoundContent={
+                loadingDepartments ? <Spin size="small" /> : 'No departments'
+              }
+            >
+              {departments?.map((dept) => (
                 <Option key={dept.id} value={dept.id}>
                   {dept.name}
                 </Option>
               ))}
             </Select>
           </Form.Item>
+        )}
 
-          <Form.Item
-            label="Payment Type"
-            name="paymentTypeId"
-            rules={[{ required: true, message: 'Please choose a payment type' }]}
+        <Form.Item
+          label="Payment Type"
+          name="paymentTypeId"
+          rules={[{ required: true, message: 'Please select payment type' }]}
+        >
+          <Select placeholder="Choose payment method">
+            {paymentTypes?.map((payment) => (
+              <Option key={payment.id} value={payment.id}>
+                {payment.name}
+              </Option>
+            ))}
+          </Select>
+        </Form.Item>
+
+        <Form.Item>
+          <button
+            type="submit"
+            className="bg-amber-500 hover:bg-amber-600 text-white text-lg font-semibold px-6 py-3 rounded shadow transition mt-5"
           >
-            <Select placeholder="Select payment type">
-              {orderOptions?.paymentTypes.map((payment) => (
-                <Option key={payment.id} value={payment.id}>
-                  {payment.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          <Form.Item>
-            <button
-              type="submit"
-              className="bg-amber-500 hover:bg-amber-600 text-white text-lg font-semibold px-6 py-3 rounded shadow transition mt-5"
-            >
-              Order Cart Items
-            </button>
-          </Form.Item>
-        </Form>
-      )}
+            Order Cart Items
+          </button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };

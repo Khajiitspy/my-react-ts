@@ -178,13 +178,8 @@ export interface OrderInformation {
   postDepartmentId: number;
   paymentTypeId: number;
   phoneNumber: string;
+  email: string;
   recipientName: string;
-}
-
-export interface OrderOptions {
-    cities: SimpleValue[];
-    postDepartments: SimpleValue[];
-    paymentTypes: SimpleValue[];
 }
 
 export interface SimpleValue {

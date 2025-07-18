@@ -26,9 +26,7 @@ const CartPage = () => {
   const dispatch = useAppDispatch();
   const [addToCart] = useAddToCartMutation();
   const [removeCartItem] = useRemoveFromCartMutation();
-  const total = cartItems.reduce((acc, item) => {
-  console.log(acc);
-  return acc + (item.quantity * item.price)}, 0);
+  const total = cartItems.reduce((acc, item) => acc + (item.quantity * item.price), 0);
 
   const handleAddToCart = async (product: any) => {
     if (!product) return;

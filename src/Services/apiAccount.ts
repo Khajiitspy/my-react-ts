@@ -8,7 +8,7 @@ export interface ILoginRequest {
     password: string;
 }
 
-export interface ILoginResponse {
+interface ILoginResponse {
     token: string;
 }
 

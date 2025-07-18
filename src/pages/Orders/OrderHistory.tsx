@@ -61,7 +61,7 @@ const OrderHistory: React.FC = () => {
             }
             key={ord.id}
           >
-            <Text type="secondary">Status: {ord.status} ༚ Purchased With: {ord.paymentType} ༚ City: {ord.city}</Text>
+            <Text type="secondary">Status: {ord.status} ༚ Purchased With: {ord.paymentType} ༚ City: {ord.city} ༚ Post Department: {ord.postDepartment}</Text>
             <div style={{ marginTop: 12 }}>{renderOrderItemsTable(ord.items)}</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
               <Text type="secondary">Contact Number: {ord.phoneNumber} ༚ Recipient Name: {ord.recipientName}</Text>

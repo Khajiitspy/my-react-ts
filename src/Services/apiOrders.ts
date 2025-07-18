@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { createBaseQuery } from '../Utilities/createBaseQuery.ts';
-import type {OrderOptions, OrderModel} from "./types.ts";
+import type {SimpleValue, OrderModel} from "./types.ts";
 
 export const apiOrders = createApi({
     reducerPath: 'api/orders',
@@ -11,9 +11,19 @@ export const apiOrders = createApi({
                 url: '',
             }),
         }),
-        getOrderOptions: builder.query<OrderOptions, void>({
+        getCities: builder.query<SimpleValue[], string>({
+            query: (search) => ({
+                url: `cities?search=${search}`,
+            }),
+        }),
+        getPostDepartments: builder.query<SimpleValue[], number>({
+            query: (cityId) => ({
+                url: `postDepartments?cityId=${cityId}`,
+            }),
+        }),
+        getPaymentTypes: builder.query<SimpleValue[], void>({
             query: () => ({
-                url: 'options',
+                url: 'paymentTypes',
             }),
         }),
     }),
@@ -21,5 +31,7 @@ export const apiOrders = createApi({
 
 export const {
     useGetOrdersQuery,
-    useGetOrderOptionsQuery
+    useGetCitiesQuery,
+    useGetPostDepartmentsQuery,
+    useGetPaymentTypesQuery,
 } = apiOrders;
