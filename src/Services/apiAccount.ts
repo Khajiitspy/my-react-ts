@@ -1,7 +1,7 @@
 import { createApi} from '@reduxjs/toolkit/query/react';
 import { createBaseQuery } from '../Utilities/createBaseQuery.ts';
 import {serialize} from "object-to-formdata";
-import type {IRegister} from "./types.ts";
+import type {IFullName, IEditProfile, IRegister} from "./types.ts";
 
 export interface ILoginRequest {
     email: string;
@@ -104,10 +104,39 @@ export const apiAccount = createApi({
                 body: data
             })
         }),
+
+        getFullName: builder.query<IFullName, void>({
+            query: () => ({
+                url: 'getFullName',
+                method: 'GET',
+            })
+        }),
+
+        editProfile: builder.mutation<void, IEditProfile>({
+            query: (data) => {
+                const formData = serialize(data, { indices: false });
+                return {
+                    url: 'editProfile',
+                    method: 'PUT',
+                    body: formData
+                }
+            },
+        }),
+
+        //mutation because I need to call this inside a function
+        refreshToken: builder.mutation<ILoginResponse, void>({
+            query: () => ({
+                url: 'refreshToken',
+                method: 'GET',
+            })
+        }), 
     }),
 });
 
 export const { useLoginMutation,
+     useEditProfileMutation,
+     useGetFullNameQuery,
+     useRefreshTokenMutation,
      useRegisterMutation,
      useGoogleRegisterMutation,
      useLoginByGoogleMutation,

@@ -1,43 +1,82 @@
-import { useState } from 'react';
+import { useEffect, useState } from "react";
 import { useGetProductsQuery } from '../../Services/apiProduct';
 import {useNavigate} from 'react-router-dom';
 import {APP_ENV} from "../../env";
 import {createUpdateCartLocal} from "../../Store/cartSlice.ts";
-import type { CartItemDto } from '../../Services/types.ts';
+import type { CartItemDto, ProductSearchModel } from '../../Services/types.ts';
+import {
+    Select,
+} from "antd";
+import LoadingOverlay from "../../components/ui/loading/LoadingOverlay.tsx";
 import {useAppDispatch, useAppSelector} from "../../Store";
 import {useAddToCartMutation} from "../../Services/apiCart.ts";
-import {message} from "antd";
+import {useGetAllCategoriesQuery} from "../../Services/apiCategory.ts";
+import {message, Breadcrumb} from "antd";
+
+const ITEMS_PER_PAGE = 6;
 
 const ProductsPage: React.FC = () => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [currentPage, setCurrentPage] = useState(1);
-    const pageSize = 6;
+    const parseQueryParams = (): ProductSearchModel => {
+        const params = new URLSearchParams(location.search);
+        return {
+            name: params.get("name") || "",
+            categoryId: params.has("categoryId") ? parseInt(params.get("categoryId")!) : undefined,
+            page: parseInt(params.get("page") || "1", 10),
+            pageSize: parseInt(params.get("pageSize") || `${ITEMS_PER_PAGE}`, 10),
+        };
+    };
+    const [searchParams, setSearchParamsState] = useState<ProductSearchModel>(() => parseQueryParams());
+
+    useEffect(() => {
+        setSearchParamsState(parseQueryParams());
+    }, [location.search]);
+
     const navigate = useNavigate();
-    // const {items} = useAppSelector(state => state.cart);
+
+    const updateSearchParams = (updated: Partial<ProductSearchModel>) => {
+        const newParams = { ...searchParams, ...updated };
+        setSearchParamsState(newParams);
+
+        const urlParams = new URLSearchParams();
+
+        if (newParams.name) urlParams.set("name", newParams.name);
+        if (newParams.categoryId && newParams.categoryId > 0) {
+            urlParams.set("categoryId", newParams.categoryId.toString());
+        }
+        if (newParams.page) urlParams.set("page", newParams.page.toString());
+        if (newParams.pageSize) urlParams.set("pageSize", newParams.pageSize.toString());
+
+        navigate({ search: urlParams.toString() }, { replace: true });
+    };
+
     const {user} = useAppSelector(state => state.auth);
     const dispatch = useAppDispatch();
     const [addToCart] = useAddToCartMutation();
+    const {data: categories = []} = useGetAllCategoriesQuery();
 
-    const { data, isLoading, error } = useGetProductsQuery({
-        search: searchTerm,
-        page: currentPage,
-        pageSize
-    });
+    const { data, isLoading, error, isError } = useGetProductsQuery(searchParams);
     
     console.log("Products:", data);
     console.log("Error:", error);
 
-    const totalPages = data ? Math.ceil(data.totalItems / pageSize) : 1;
-
-    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
-        setCurrentPage(1);
+    const handleCategorySearch = (value: number) => {
+        updateSearchParams({
+            categoryId: value,
+            page: 1,
+        });
+    };
+    
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        updateSearchParams({
+            [name]: name === "pageSize" ? parseInt(value) || 1 : value,
+            page: 1,
+        });
     };
 
-    const goToPage = (page: number) => {
-        if (page >= 1 && page <= totalPages) setCurrentPage(page);
+    const handlePageChange = (newPage: number) => {
+        updateSearchParams({ page: newPage });
     };
-
 
     const handleAddToCart = async (product: any) => {
         if (!product) return;
@@ -73,17 +112,62 @@ const ProductsPage: React.FC = () => {
         dispatch(createUpdateCartLocal(newItem));
     };
 
+    if (isLoading) return <LoadingOverlay />;
+    if (isError) return <p className="text-gray-600 dark:text-gray-400">Something went wrong.</p>;
+    const totalPages = data?.totalItems && data?.pageSize
+      ? Math.ceil(data.totalItems / data.pageSize)
+      : 1;
+
     return (
         <div className="container py-6 px-4">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold">Products</h2>
-                <input
-                    type="text"
-                    className="border rounded px-3 py-1 w-1/4"
-                    placeholder="Search..."
-                    value={searchTerm}
-                    onChange={handleSearch}
+                <Breadcrumb
+                  items={[
+                    {
+                      title: <a href="/">Home</a>,
+                    },
+                    {
+                      title: `${searchParams.categoryId? categories[searchParams.categoryId - 1].name : ''} Product`,
+                    },
+                  ]}
                 />
+            <div className="flex justify-between items-start mb-6 flex-wrap gap-4">
+                <h2 className="text-2xl font-semibold">Products</h2>
+
+                <div className="flex gap-4 flex-wrap justify-end">
+                    <div className="flex flex-col">
+                        <label htmlFor="name" className="mb-1 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            Пошук за ім'ям
+                        </label>
+                        <input
+                            id="name"
+                            type="text"
+                            name="name"
+                            placeholder="Введіть ім'я"
+                            className="rounded-lg border border-gray-300 bg-white text-gray-900 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-blue-400 dark:focus:ring-blue-400 px-3 py-2 min-w-[200px]"
+                            value={searchParams.name}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+
+                    <div className="flex flex-col min-w-[200px]">
+                        <label htmlFor="categoryId" className="mb-1 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                            Категорія
+                        </label>
+                        <Select
+                            id="categoryId"
+                            placeholder="Оберіть категорію"
+                            onChange={handleCategorySearch}
+                            value={searchParams.categoryId || undefined}
+                            allowClear
+                        >
+                            {categories.map((cat) => (
+                                <Select.Option key={cat.id} value={cat.id}>
+                                    {cat.name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </div>
+                </div>
             </div>
 
             {isLoading && <p>Loading...</p>}
@@ -131,19 +215,19 @@ const ProductsPage: React.FC = () => {
             </div>
             
             <div className="flex justify-center mt-6 space-x-1">
-                <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} className="px-3 py-1 border rounded">
+                <button onClick={() => handlePageChange((data?.page || 1) - 1)} disabled={data?.page === 1} className="px-3 py-1 border rounded">
                     &laquo;
                 </button>
                 {Array.from({ length: totalPages }).map((_, i) => (
                     <button
                         key={i}
-                        className={`px-3 py-1 border rounded ${i + 1 === currentPage ? 'bg-blue-600 text-white' : ''}`}
-                        onClick={() => goToPage(i + 1)}
+                        className={`px-3 py-1 border rounded ${i + 1 === data?.page ? 'bg-blue-600 text-white' : ''}`}
+                        onClick={() => handlePageChange(i + 1)}
                     >
                         {i + 1}
                     </button>
                 ))}
-                <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} className="px-3 py-1 border rounded">
+                <button onClick={() => handlePageChange((data?.page || 1) + 1)} disabled={data?.page === totalPages} className="px-3 py-1 border rounded">
                     &raquo;
                 </button>
             </div>

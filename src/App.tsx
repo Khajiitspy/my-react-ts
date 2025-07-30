@@ -26,6 +26,7 @@ const CartPage = React.lazy(() => import("./pages/Cart/List.tsx"));
 const OrderConfirmPage = React.lazy(() => import("./pages/Orders/OrderConfirmPage.tsx"));
 const ProfilePage = React.lazy(() => import("./pages/Account/ProfilePage.tsx"));
 const OrderHistory = React.lazy(() => import("./pages/Orders/OrderHistory.tsx"));
+const EditProfile = React.lazy(() => import("./pages/Account/EditProfile.tsx"));
 
 const App: React.FC = () => {
 
@@ -50,6 +51,7 @@ const App: React.FC = () => {
                             <Route path="order/confirm" element={<OrderConfirmPage/>}/>
                             <Route path="orderHistory" element={<OrderHistory/>}/>
                             <Route path="account" element={<ProfilePage/>}/>
+                            <Route path="account/edit" element={<EditProfile/>}/>
                         </Route>
 
 

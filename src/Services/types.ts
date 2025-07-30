@@ -186,3 +186,22 @@ export interface SimpleValue {
     name: string;
     id: number;
 }
+
+export interface IFullName {
+    firstName: string;
+    lastName: string;
+}
+
+export interface IEditProfile {
+    firstName: string;
+    lastName: string;
+    email: string;
+    image?: File;
+}
+
+export interface ProductSearchModel {
+    name?: string;
+    categoryId?: number;
+    page?: number;
+    pageSize?: number;
+}

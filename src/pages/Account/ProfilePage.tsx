@@ -1,11 +1,25 @@
 import {APP_ENV} from "../../env";
 import { useAppSelector} from "../../Store";
 import { useNavigate } from 'react-router-dom';
+import {useForgotPasswordMutation} from "../../Services/apiAccount.ts";
 
 const ProfilePage = () => {
     const {user} = useAppSelector(state => state.auth);
     const navigate = useNavigate();
+    const [forgot] = useForgotPasswordMutation();
 
+    const HandleResetPassword = async () => {
+        try {
+            await forgot({email: user?.email!}).unwrap();
+            console.log("Sending Forgot Password Email...");
+            navigate('/forgot-success');
+
+        } catch (err) {
+            console.log("error", err);
+            alert("Forgot Password failed");
+        }
+    }
+    
     return (
         <div>
             {user && (
@@ -21,10 +35,24 @@ const ProfilePage = () => {
                     <h1 className="text-2xl mb-8 text-center">{user.email}</h1>
 
                     <button
+                      onClick={() => {navigate("/account/edit")}}
+                      className="bg-blue-500 hover:bg-amber-600 text-white text-lg font-semibold px-6 py-3 rounded shadow transition mt-5"
+                    >
+                      Edit Profile
+                    </button>
+
+                    <button
                       onClick={() => {navigate("/orderHistory")}}
                       className="bg-amber-500 hover:bg-amber-600 text-white text-lg font-semibold px-6 py-3 rounded shadow transition mt-5"
                     >
                       Order History
+                    </button>
+
+                    <button
+                      onClick={HandleResetPassword}
+                      className="bg-amber-500 hover:bg-amber-600 text-white text-lg font-semibold px-6 py-3 rounded shadow transition mt-5"
+                    >
+                      Reset Password
                     </button>
                 </div>
             )}

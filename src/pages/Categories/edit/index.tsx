@@ -68,7 +68,7 @@ const CategoriesEditPage: React.FC = () => {
                         <Input />
                     </Form.Item>
 
-                    <ImageUploadFormItem name="imageFile"
+                    <ImageUploadFormItem name="image"
                                          label="Нове фото"
                                          src={`${APP_ENV.IMAGES_400_URL}${category.image}`}
                     />

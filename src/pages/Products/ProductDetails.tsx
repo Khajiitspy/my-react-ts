@@ -7,7 +7,7 @@ import type { CartItemDto } from "../../Services/types";
 import {useAppDispatch, useAppSelector} from "../../Store";
 import {useAddToCartMutation} from "../../Services/apiCart.ts";
 import {createUpdateCartLocal} from "../../Store/cartSlice.ts";
-import {message} from "antd";
+import {message, Breadcrumb} from "antd";
 
 const ProductDetailsPage = () => {
     const { id } = useParams();
@@ -84,6 +84,19 @@ const ProductDetailsPage = () => {
 
     return (
         <div className="container mx-auto px-6 py-10 max-w-6xl">
+            <Breadcrumb
+              items={[
+                {
+                  title: <a href="/">Home</a>,
+                },
+                {
+                  title: <a href="/products">Products</a>,
+                },
+                {
+                  title: currentVariant.name
+                },
+              ]}
+            />
             <h1 className="text-3xl font-bold mb-8 text-center">{currentVariant.name}</h1>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

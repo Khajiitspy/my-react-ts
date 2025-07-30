@@ -1,19 +1,17 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { createBaseQuery } from '../Utilities/createBaseQuery.ts';
-import type {IProductCreate, Product, ProductDetailsDto, ProductIngredientModel, ProductSizeModel} from "./types.ts";
+import type {IProductCreate, Product, PagedResult, ProductDetailsDto, ProductIngredientModel, ProductSearchModel, ProductSizeModel} from "./types.ts";
 import {serialize} from "object-to-formdata";
 
 export const apiProduct = createApi({
     reducerPath: 'api/products',
     baseQuery: createBaseQuery('products'),
     endpoints: (builder) => ({
-        getProducts: builder.query<{
-            items: Product[],
-            totalItems: number
-        }, { search?: string, page?: number, pageSize?: number }>({
-            query: ({ search = '', page = 1, pageSize = 6 }) => ({
+        getProducts: builder.query<PagedResult<Product>, ProductSearchModel>({
+            query: (params) => ({
                 url: 'list',
-                params: { search, page, pageSize }
+                method: 'GET',
+                params,
             }),
         }),
         getProductById: builder.query<ProductDetailsDto, number>({
