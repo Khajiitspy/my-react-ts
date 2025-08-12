@@ -85,7 +85,7 @@ const CartPage = () => {
     }
     else{
         try {
-          await removeCartItem (product.Id).unwrap();
+          await removeCartItem (product.productVariantId).unwrap();
           message.success("Removed product from cart!");
         } catch (err) {
           console.error(err);
