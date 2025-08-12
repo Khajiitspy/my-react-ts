@@ -11,7 +11,7 @@ const AdminProductListPage: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 6;
     const { data: products, isLoading} = useGetProductsQuery({
-        search: searchTerm,
+        name: searchTerm,
         page: currentPage,
         pageSize
     });
