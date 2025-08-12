@@ -4,6 +4,7 @@ import type { UploadFile } from "antd/es/upload";
 import type { FormProps } from "antd";
 import type { ICategoryCreate } from "../../../Services/types.ts";
 import { useCreateCategoryMutation } from "../../../Services/apiCategory.ts";
+import {useNavigate} from "react-router-dom";
 
 interface CategoryFormValues {
     name: string;
@@ -12,6 +13,8 @@ interface CategoryFormValues {
 
 const CategoriesCreatePage: React.FC = () => {
     const [createCategory] = useCreateCategoryMutation();
+
+    const navigate = useNavigate();
 
     const normFile = (e: any) => {
         if (Array.isArray(e)) return e;
@@ -36,6 +39,8 @@ const CategoriesCreatePage: React.FC = () => {
         try {
             await createCategory(payload).unwrap();
             message.success("Категорія створена успішно!");
+            navigate('/admin/categories');
+            
         } catch (error) {
             console.error("Create error:", error);
             message.error("Не вдалося створити категорію.");
