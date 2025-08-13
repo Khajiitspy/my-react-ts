@@ -64,10 +64,9 @@ const ProductDetailsPage = () => {
             imageName: product.imageName
         }
         
-        if(!user){
-            dispatch(createUpdateCartLocal(newItem));
-        }
-        else{
+        dispatch(createUpdateCartLocal(newItem));
+        
+        if(user){
             try {
               await addToCart({
                     productVariantId: product.productVariantId,

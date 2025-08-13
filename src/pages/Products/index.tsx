@@ -93,10 +93,7 @@ const ProductsPage: React.FC = () => {
             imageName: product.imageName
         }
         
-        if(!user){
-            dispatch(createUpdateCartLocal(newItem));
-        }
-        else{
+        if(user){
             try {
               await addToCart({
                     productVariantId: product.productVariantId,

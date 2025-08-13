@@ -29,7 +29,7 @@ const LoginPage: React.FC = () => {
             dispatch(loginSuccess(token));
             const user = getUserFromToken(token);
             console.log("user", user);
-            const cartItems = localStorage.getItem('cart') ? JSON.parse(String(localStorage.getItem('cart'))).items : [];
+            const cartItems = localStorage.getItem('cart') ? JSON.parse(String(localStorage.getItem('cart'))) : [];
             //@ts-ignore
             cartItems.forEach(item => {
                 addToCart({
@@ -38,6 +38,7 @@ const LoginPage: React.FC = () => {
                 })
             });
             localStorage.removeItem('cart');
+
             if (!user || !user.roles.includes("Admin")) {
                 navigate('/');
             }

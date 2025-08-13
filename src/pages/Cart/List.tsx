@@ -14,16 +14,19 @@ const CartPage = () => {
   // const { cartItems, addToCart, removeFromCart } = useCart();
 
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const {user} = useAppSelector(state => state.auth);
 
   var cartItems = new Array<CartItemDto>();
-  if(user){
+  if(localStorage.getItem('cart')){
+    cartItems = localStorage.getItem('cart') ? JSON.parse(String(localStorage.getItem('cart'))): []
+  } else if (user){
     const {data} = useGetCartItemsQuery(); // Maybe you can combine these 2 lines.
     cartItems = data || [];
-  } else{
-    cartItems = localStorage.getItem('cart') ? JSON.parse(String(localStorage.getItem('cart'))).items : []
+    cartItems.forEach(x=> {
+      dispatch(createUpdateCartLocal(x));
+    })
   }
-  const dispatch = useAppDispatch();
   const [addToCart] = useAddToCartMutation();
   const [removeCartItem] = useRemoveFromCartMutation();
   const total = cartItems.reduce((acc, item) => acc + (item.quantity * item.price), 0);
@@ -43,10 +46,9 @@ const CartPage = () => {
         imageName: ""
     }
     
-    if(!user){
-        dispatch(createUpdateCartLocal(newItem));
-    }
-    else{
+    dispatch(createUpdateCartLocal(newItem));
+    
+    if(user){
         try {
           await addToCart({
               productVariantId: product.productVariantId,
@@ -80,10 +82,9 @@ const CartPage = () => {
         imageName: ""
     }
     
-    if(!user){
-        dispatch(createUpdateCartLocal(newItem));
-    }
-    else{
+    dispatch(createUpdateCartLocal(newItem));
+    
+    if(user){
         try {
           await removeCartItem (product.productVariantId).unwrap();
           message.success("Removed product from cart!");

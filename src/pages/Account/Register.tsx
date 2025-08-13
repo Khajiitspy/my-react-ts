@@ -25,6 +25,7 @@ const RegistrationPage: React.FC = () => {
 
     const onFinish: FormProps<IRegister>['onFinish'] = async (values) => {
         try {
+            console.log(values);
             const result = await register(values).unwrap();
             dispatch(loginSuccess(result.token));
             //@ts-ignore
@@ -100,7 +101,7 @@ const RegistrationPage: React.FC = () => {
                         />
                     </Form.Item>
 
-                    <ImageUploadFormItem name="imageFile" label="Фоточка" />
+                    <ImageUploadFormItem name="image" label="Фоточка" />
 
                     <Form.Item>
                         <div className="flex flex-col sm:flex-row items-center gap-4">

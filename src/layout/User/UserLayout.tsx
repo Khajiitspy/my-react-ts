@@ -60,7 +60,8 @@ const UserLayout: React.FC = () => {
                     )}
                       
                     <Button
-                      onClick={() => dispatch(logout())}
+                      onClick={() => {dispatch(logout());
+                      localStorage.removeItem('cart')}} // something called privacy
                       className="bg-white text-orange-500 border-none hover:bg-orange-100"
                     >
                       Вихід
