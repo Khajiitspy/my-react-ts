@@ -4,6 +4,7 @@ import type { UploadFile } from "antd/es/upload";
 import type { FormProps } from "antd";
 import type { ICategoryCreate } from "../../../Services/types.ts";
 import { useCreateCategoryMutation } from "../../../Services/apiCategory.ts";
+import LoadingOverlay from "../../../components/ui/loading/LoadingOverlay.tsx";
 import {useNavigate} from "react-router-dom";
 
 interface CategoryFormValues {
@@ -12,7 +13,7 @@ interface CategoryFormValues {
 }
 
 const CategoriesCreatePage: React.FC = () => {
-    const [createCategory] = useCreateCategoryMutation();
+    const [createCategory, {isLoading}] = useCreateCategoryMutation();
 
     const navigate = useNavigate();
 
@@ -89,6 +90,9 @@ const CategoriesCreatePage: React.FC = () => {
                     </Form.Item>
                 </Form>
             </div>
+            {isLoading && (
+                <LoadingOverlay/>
+            )}
         </div>
     );
 };
