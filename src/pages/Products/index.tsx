@@ -54,6 +54,8 @@ const ProductsPage: React.FC = () => {
     const [addToCart] = useAddToCartMutation();
     const {data: categories = []} = useGetAllCategoriesQuery();
 
+    console.log(categories);
+
     const { data, isLoading, error, isError } = useGetProductsQuery(searchParams);
     
     console.log("Products:", data);
@@ -123,7 +125,7 @@ const ProductsPage: React.FC = () => {
                       title: <a href="/">Home</a>,
                     },
                     {
-                      title: `${searchParams.categoryId? categories[searchParams.categoryId - 1].name : ''} Product`,
+                      title: `${searchParams.categoryId? categories.find(x => Number(x.id) == searchParams.categoryId)?.name : ''} Product`,
                     },
                   ]}
                 />
