@@ -1,3 +1,4 @@
+// import { useEffect } from "react";
 import {Link, Outlet} from "react-router";
 import {useAppDispatch, useAppSelector} from "../../Store";
 //import {useNavigate} from "react-router-dom";
@@ -10,6 +11,7 @@ import { Badge } from 'antd';
 const UserLayout: React.FC = () => {
     const {user} = useAppSelector(state => state.auth);
     var {items} = useAppSelector(state => state.cart) || -1;
+    // var cart = [];
     console.log(items);
     const dispatch = useAppDispatch();
     //const navigate = useNavigate();
@@ -19,6 +21,12 @@ const UserLayout: React.FC = () => {
         dispatch(logout());
         navigate('/');
     }*/
+
+    // useEffect(() => {
+    //   var {items} = useAppSelector(state => state.cart) || -1;
+    //   cart = items;
+    // }, [location.search]);
+
 
 
     return (

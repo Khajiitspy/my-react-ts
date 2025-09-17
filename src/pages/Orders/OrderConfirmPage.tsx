@@ -45,7 +45,7 @@ const OrderConfirmPage = () => {
 
   useEffect(() => {
     if (user) {
-      setCartItems(cartData || []);
+      setCartItems(data || []);
       // Fill initial values with user's info
       form.setFieldsValue({
         recipientName: user.name,
@@ -58,12 +58,13 @@ const OrderConfirmPage = () => {
     }
   }, [user]);
 
-  const { data: cartData } = useGetCartItemsQuery(undefined, { skip: !user });
+  const { data } = useGetCartItemsQuery();
 
   const handleOrder = async (values: any) => {
     if (user) {
       try {
         await orderCart(values).unwrap();
+        localStorage.removeItem("cart");
         message.success('Your order has been placed! Check your email.');
         navigate('/');
       } catch (err) {
